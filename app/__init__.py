@@ -1,13 +1,12 @@
-# northern-market-hub/app/__init__.py
 import os
 from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from datetime import datetime
-from app.config import Config # Import the Config class
+from app.config import Config
 from flask_socketio import SocketIO
 
 # Initialize extensions
@@ -29,7 +28,10 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     socketio.init_app(app)
 
-    # Context processor to make 'now' and 'current_vendor' available to all templates
+    # Run migrations automatically on startup
+    with app.app_context():
+        upgrade()
+
     @app.context_processor
     def inject_globals():
         current_vendor = None
@@ -41,11 +43,10 @@ def create_app(config_class=Config):
             'current_vendor': current_vendor
         }
 
-    # Import and register the blueprint
     from app.routes import main
     app.register_blueprint(main)
 
     return app
 
 from app import models
-import app.events # This line is important!
+import app.events

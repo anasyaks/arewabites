@@ -1,15 +1,13 @@
-from app import create_app, db, socketio
-from app.models import Vendor
+from app import create_app, db
+from flask_migrate import upgrade
 import os
 
 app = create_app()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # Apply migrations before starting the server
     with app.app_context():
-        # This part will only create the database and admin if they don't exist
-        # in your local development environment.
-        if not os.path.exists('app/site.db'):
-            db.create_all()
-            Vendor.create_admin()
+        upgrade()
 
-    socketio.run(app, debug=True)
+    # Start the server
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
