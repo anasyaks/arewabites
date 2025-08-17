@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card arewa-card shadow-lg p-4">
+                <div class="card-body">
+                    <h1 class="card-title text-center arewa-text-green mb-4 fw-bold">Vendor Login</h1>
+                    <form method="POST" action="{{ url_for('main.login') }}" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="{{ form.email.id }}" class="form-label">Email address</label>
+                            {{ form.email(class="form-control", placeholder="Enter email") }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}<span>{{ error }}</span>{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.password.id }}" class="form-label">Password</label>
+                            {{ form.password(class="form-control", placeholder="Password") }}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}<span>{{ error }}</span>{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 form-check">
+                            {{ form.remember(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.remember.id }}">Remember me</label>
+                        </div>
+                        <button type="submit" class="btn btn-arewa-primary w-100 mt-4">Login</button>
+                    </form>
+                    <p class="text-center mt-3">Don't have an account? <a href="{{ url_for('main.register_vendor') }}" class="arewa-text-green text-decoration-none fw-bold">Register here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

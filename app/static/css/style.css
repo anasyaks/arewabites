@@ -1,0 +1,129 @@
+/* Arewa Bites - Clean & Modern Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    background-color: #F8F9FA;
+    background-image: url("../images/traditional_food_pattern.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #343A40;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.arewa-bg-light {
+    background-color: #FFFFFF;
+}
+
+.arewa-text-green {
+    color: #28A745 !important;
+}
+
+.arewa-border-green {
+    border-color: #28A745 !important;
+}
+
+.arewa-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E9ECEF;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(40, 167, 69, 0.15);
+}
+
+.form-control, .btn, .badge {
+    border-radius: 8px;
+}
+
+.form-control:focus {
+    border-color: #28A745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.btn-arewa-primary {
+    background-color: #28A745;
+    color: white;
+    border: none;
+}
+
+.btn-arewa-primary:hover {
+    background-color: #218838;
+}
+
+.btn-arewa-outline {
+    border-color: #28A745;
+    color: #28A745;
+}
+
+.btn-arewa-outline:hover {
+    background-color: #28A745;
+    color: white;
+}
+
+.nav-link:hover {
+    color: #28A745 !important;
+}
+
+.profile-pic, .logo-display {
+    border: 3px solid #28A745;
+    object-fit: cover;
+    background-color: #FFFFFF;
+}
+
+.jumbotron {
+    background-color: #E9ECEF !important;
+    border-radius: 12px;
+}
+
+.ad-media {
+    height: 150px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.nav-link-item {
+    position: relative;
+    padding-bottom: 5px;
+    transition: color 0.3s ease-in-out;
+}
+
+.nav-link-item::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #28A745;
+    transition: width 0.3s ease-in-out;
+}
+
+.nav-link-item:hover::after {
+    width: 100%;
+}
+
+h1.arewa-text-green {
+    font-weight: bold;
+}
+
+.rounded-pill {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.navbar-brand img {
+    height: 30px;
+    margin-right: 10px;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    body {
+        background-image: none;
+        background-color: #F8F9FA;
+        background-attachment: scroll;
+    }
+}

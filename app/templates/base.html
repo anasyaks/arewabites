@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Arewa Bites{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-ieoM55Q4n0d6g+T55qW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9wW9w" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg bg-light shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('main.home') }}">
+                <img src="{{ url_for('static', filename='logos/arewa_logo.png') }}" alt="Arewa Bites Logo" style="height: 30px; margin-right: 10px;"> <span class="arewa-text-green">Arewa Bites</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item" href="{{ url_for('main.home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item" href="{{ url_for('main.list_vendors') }}">Vendors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item" href="{{ url_for('main.search_snacks') }}">Search Snacks</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_vendor %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="{{ url_for('static', filename=current_vendor.logo_url) }}" class="rounded-circle me-1" alt="Logo" style="width: 28px; height: 28px; object-fit: cover;">
+                                {{ current_vendor.business_name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                {% if current_vendor.is_admin %}
+                                    <li><a class="dropdown-item" href="{{ url_for('main.admin_dashboard') }}">Admin Dashboard</a></li>
+                                {% else %}
+                                    <li><a class="dropdown-item" href="{{ url_for('main.vendor_dashboard') }}">My Profile</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{{ url_for('main.edit_profile' ) }}">Edit Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-arewa-primary rounded-pill ms-2" href="{{ url_for('main.register_vendor') }}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="container mt-5 flex-grow-1">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="row">
+                    <div class="col-md-12">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-5 py-3 bg-dark text-white text-center">
+        <div class="container">
+            <p class="mb-0">&copy; {{ now.year }} Arewa Bites. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

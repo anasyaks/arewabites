@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Our Vendors{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center arewa-text-green mb-4 fw-bold">Our Vendors</h1>
+
+    <div class="card p-4 mb-4 arewa-card shadow-sm">
+        <h2 class="card-title text-center arewa-text-green mb-3">Search for a Vendor</h2>
+        <form method="GET" action="{{ url_for('main.search_vendors') }}">
+            {{ search_form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="{{ search_form.business_name.id }}" class="form-label">Business Name</label>
+                    {{ search_form.business_name(class="form-control", placeholder="Enter business name") }}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ search_form.location_zone.id }}" class="form-label">Location Zone</label>
+                    {{ search_form.location_zone(class="form-control", placeholder="e.g., Yaba") }}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-arewa-primary w-100 mt-4 rounded-pill">Search Vendors</button>
+        </form>
+    </div>
+
+    {% if vendors %}
+        <div class="row g-4">
+            {% for vendor in vendors %}
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm text-center arewa-card border-0">
+                        <div class="card-body d-flex flex-column align-items-center">
+                            <a href="{{ url_for('main.vendor_profile', vendor_id=vendor.id) }}">
+                                <img src="{{ url_for('static', filename=vendor.logo_url) }}" alt="{{ vendor.business_name }} Logo" class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                            </a>
+                            <h5 class="card-title fw-bold mt-2">{{ vendor.business_name }}</h5>
+                            <p class="card-text text-muted flex-grow-1"><i class="fas fa-map-marker-alt me-1"></i>Location: {{ vendor.location_zone }}, {{ vendor.state }}</p>
+                            {% if vendor.is_verified %}
+                                <span class="badge text-bg-success rounded-pill mb-2">Verified</span>
+                            {% endif %}
+                            <a href="{{ url_for('main.vendor_profile', vendor_id=vendor.id) }}" class="btn btn-outline-success w-100 rounded-pill mt-auto">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No vendors are registered yet. Be the first! 🎉</p>
+    {% endif %}
+</div>
+{% endblock %}

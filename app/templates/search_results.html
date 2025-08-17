@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center arewa-text-green mb-4 fw-bold">Snack Search Results</h1>
+
+    <div class="card p-4 mb-4 arewa-card shadow-sm">
+        <h2 class="card-title text-success text-center mb-3">Refine Your Search</h2>
+        <form method="GET" action="{{ url_for('main.search_snacks') }}">
+            {{ search_form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="location_zone" class="form-label">Location Zone</label>
+                    <input type="text" class="form-control" id="location_zone" name="location_zone" value="{{ request.args.get('location_zone', '') }}" placeholder="e.g., Yaba">
+                </div>
+                <div class="col-md-6">
+                    <label for="snack_type" class="form-label">Snack Type</label>
+                    <input type="text" class="form-control" id="snack_type" name="snack_type" value="{{ request.args.get('snack_type', '') }}" placeholder="e.g., Kilishi">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-arewa-primary w-100 mt-4 rounded-pill">Search</button>
+        </form>
+    </div>
+
+    {% if results %}
+        <p class="text-center text-muted">Found {{ results|length }} snacks matching your criteria.</p>
+        <div class="row g-4">
+            {% for snack in results %}
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm arewa-card">
+                        {% if snack.media_type == 'video' %}
+                            <video src="{{ url_for('static', filename=snack.media_url) }}" class="card-img-top rounded-top" controls></video>
+                        {% else %}
+                            <img src="{{ url_for('static', filename=snack.media_url) }}" class="card-img-top rounded-top" alt="{{ snack.name }}">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title arewa-text-green fw-bold">{{ snack.name }}</h5>
+                            <p class="card-text text-muted flex-grow-1">{{ snack.description }}</p>
+                            <p class="fw-bold arewa-text-green">₦{{ "%.2f"|format(snack.price) }}</p>
+                            <p class="card-text"><small class="text-muted">Vendor: <a href="{{ url_for('main.vendor_profile', vendor_id=snack.vendor.id) }}" class="text-success text-decoration-none fw-bold">{{ snack.vendor.business_name }}</a></small></p>
+                            <a href="https://wa.me/{{ snack.vendor.whatsapp_number }}" target="_blank" class="btn btn-arewa-primary w-100 rounded-pill mt-auto">Chat to Order</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">No snacks found matching your search criteria. Try a different search! 🔍</p>
+    {% endif %}
+</div>
+{% endblock %}

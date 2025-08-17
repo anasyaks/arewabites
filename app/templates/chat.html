@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ vendor_to_chat_with.business_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card p-4 shadow-sm arewa-card">
+                <h1 class="text-center arewa-text-green mb-4 fw-bold">Chat with {{ vendor_to_chat_with.business_name }}</h1>
+                <div id="chat-box" class="border rounded p-3 mb-3 arewa-card" style="height: 400px; overflow-y: scroll;">
+                    {% for message in chat_history %}
+                        <div class="chat-message mb-2">
+                            <strong>{{ message.sender.business_name }}:</strong> {{ message.message }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <form id="send-message-form">
+                    <div class="input-group">
+                        <input type="text" id="message-input" class="form-control" placeholder="Type a message...">
+                        <button class="btn btn-arewa-primary" type="submit">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var room = '{{ vendor_to_chat_with.id }}';
+    
+    socket.on('connect', function() {
+        socket.emit('join', {room: room});
+    });
+
+    socket.on('message', function(data) {
+        var chatBox = document.getElementById('chat-box');
+        var message = document.createElement('div');
+        message.classList.add('chat-message', 'mb-2');
+        message.innerHTML = '<strong>' + data.sender + ':</strong> ' + data.msg;
+        chatBox.appendChild(message);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    document.getElementById('send-message-form').onsubmit = function(event) {
+        var input = document.getElementById('message-input');
+        var msg = input.value;
+        if (msg) {
+            socket.emit('message', {msg: msg, room: room, sender_id: '{{ session.get("vendor_id") }}'});
+            input.value = '';
+        }
+        event.preventDefault();
+    };
+</script>
+{% endblock %}

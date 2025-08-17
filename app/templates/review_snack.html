@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-lg arewa-card">
+                <h1 class="card-title text-center arewa-text-green mb-2 fw-bold">Review {{ snack.name }}</h1>
+                <p class="text-center text-muted mb-4">from {{ snack.vendor.business_name }}</p>
+                <form method="POST" action="{{ url_for('main.review_snack', snack_id=snack.id) }}" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label for="{{ form.rating.id }}" class="form-label">Rating (1-5)</label>
+                        {{ form.rating(class="form-control") }}
+                        {% if form.rating.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.rating.errors %}<span>{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.comment.id }}" class="form-label">Comment</label>
+                        {{ form.comment(class="form-control", rows="4") }}
+                        {% if form.comment.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.comment.errors %}<span>{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {{ form.submit(class="btn btn-arewa-primary w-100 mt-4 rounded-pill") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
