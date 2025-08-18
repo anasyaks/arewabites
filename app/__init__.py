@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from datetime import datetime
 from app.config import Config
 from flask_socketio import SocketIO
+import cloudinary
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -27,6 +28,16 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app)
+    
+    # Cloudinary Configuration
+    if all([app.config['CLOUDINARY_CLOUD_NAME'], app.config['CLOUDINARY_API_KEY'], app.config['CLOUDINARY_API_SECRET']]):
+        cloudinary.config(
+            cloud_name=app.config['CLOUDINARY_CLOUD_NAME'],
+            api_key=app.config['CLOUDINARY_API_KEY'],
+            api_secret=app.config['CLOUDINARY_API_SECRET']
+        )
+    else:
+        print("Cloudinary credentials are not set. File uploads will fail.")
 
     @app.context_processor
     def inject_globals():

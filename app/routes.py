@@ -1,4 +1,3 @@
-# app/routes.py
 import os
 import secrets
 from flask import render_template, url_for, flash, redirect, request, Blueprint, session, current_app
@@ -7,6 +6,8 @@ from functools import wraps
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, func
+import cloudinary.uploader
+import cloudinary
 
 from app import db, bcrypt, login_manager
 from app.models import Vendor, Snack, Review, Ad
@@ -14,6 +15,16 @@ from app.forms import RegistrationForm, LoginForm, AddSnackForm, SearchForm, Ven
 
 # Create a Blueprint named 'main'
 main = Blueprint('main', __name__)
+
+# --- NEW FUNCTION TO UPLOAD TO CLOUDINARY ---
+def upload_to_cloudinary(file, folder):
+    try:
+        upload_result = cloudinary.uploader.upload(file, folder=folder)
+        return upload_result['secure_url']
+    except cloudinary.exceptions.Error as e:
+        print(f"Cloudinary upload error: {e}")
+        return None
+# ---------------------------------------------
 
 # User loader function for Flask-Login
 @login_manager.user_loader
@@ -45,18 +56,16 @@ def admin_only(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# File upload helper
-def save_uploaded_file(file, folder):
-    if file:
-        random_hex = secrets.token_hex(8)
-        _, f_ext = os.path.splitext(file.filename)
-        file_name = random_hex + f_ext
-        upload_path = os.path.join(current_app.root_path, 'static', folder, file_name)
-        if not os.path.exists(os.path.dirname(upload_path)):
-            os.makedirs(os.path.dirname(upload_path))
-        file.save(upload_path)
-        return os.path.join(folder, file_name).replace('\\', '/')
-    return None
+# Context processor to make 'now' and 'current_vendor' available to all templates
+@main.context_processor
+def inject_globals():
+    current_vendor = None
+    if 'vendor_id' in session:
+        current_vendor = db.session.get(Vendor, session.get('vendor_id'))
+    return {
+        'now': datetime.utcnow(),
+        'current_vendor': current_vendor
+    }
 
 @main.route("/")
 @main.route("/home")
@@ -95,10 +104,10 @@ def register_vendor():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         
-        logo_url = 'logos/default.png'
-        if form.logo_file.data:
-            logo_url = save_uploaded_file(form.logo_file.data, 'logos')
-
+        # New upload logic
+        default_logo_url = 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1723991206/logos/default.png' # You must replace this with a URL to a default image you've uploaded to Cloudinary.
+        logo_url = upload_to_cloudinary(form.logo_file.data, 'logos') if form.logo_file.data else default_logo_url
+        
         referrer_vendor = None
         if form.referral_code.data:
             referrer_vendor = Vendor.query.filter_by(referral_code=form.referral_code.data).first()
@@ -248,7 +257,7 @@ def add_snack():
         media_url = None
         media_type = 'image'
         if form.media_file.data:
-            media_url = save_uploaded_file(form.media_file.data, 'snack_media')
+            media_url = upload_to_cloudinary(form.media_file.data, 'snack_media')
             if media_url and (media_url.lower().endswith('.mp4') or media_url.lower().endswith('.mov')):
                 media_type = 'video'
             
@@ -276,6 +285,7 @@ def delete_snack(snack_id):
         flash('You do not have permission to delete this snack.', 'danger')
         return redirect(url_for('main.vendor_dashboard'))
     
+    # New delete logic: No need to delete from local file system anymore
     db.session.delete(snack)
     db.session.commit()
     flash('Snack deleted successfully.', 'success')
@@ -363,8 +373,9 @@ def admin_edit_profile():
     admin = db.session.get(Vendor, session.get('vendor_id'))
     form = UpdateProfileForm(obj=admin)
     if form.validate_on_submit():
+        # New upload logic
         if form.logo_file.data:
-            logo_url = save_uploaded_file(form.logo_file.data, 'logos')
+            logo_url = upload_to_cloudinary(form.logo_file.data, 'logos')
             admin.logo_url = logo_url
         
         form.populate_obj(admin)
@@ -383,8 +394,9 @@ def edit_profile():
         
     form = UpdateProfileForm(obj=vendor)
     if form.validate_on_submit():
+        # New upload logic
         if form.logo_file.data:
-            logo_url = save_uploaded_file(form.logo_file.data, 'logos')
+            logo_url = upload_to_cloudinary(form.logo_file.data, 'logos')
             vendor.logo_url = logo_url
         
         form.populate_obj(vendor)
@@ -405,7 +417,8 @@ def add_ad():
         media_url = None
         media_type = 'image'
         if form.media_file.data:
-            media_url = save_uploaded_file(form.media_file.data, 'ads')
+            media_url = upload_to_cloudinary(form.media_file.data, 'ads')
+            # Assuming file extension check for media type
             if media_url and (media_url.lower().endswith('.mp4')):
                 media_type = 'video'
             else:
@@ -436,7 +449,7 @@ def edit_ad(ad_id):
     form = AdForm(obj=ad)
     if form.validate_on_submit():
         if form.media_file.data:
-            media_url = save_uploaded_file(form.media_file.data, 'ads')
+            media_url = upload_to_cloudinary(form.media_file.data, 'ads')
             ad.media_url = media_url
             if media_url and (media_url.lower().endswith('.mp4')):
                 ad.media_type = 'video'
