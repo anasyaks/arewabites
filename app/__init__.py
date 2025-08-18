@@ -29,7 +29,8 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     socketio.init_app(app)
     
-    # Cloudinary Configuration
+    # Cloudinary Configuration - MOVED TO BE AFTER APP CONFIG IS LOADED
+    # This block will now correctly read the environment variables.
     if all([app.config['CLOUDINARY_CLOUD_NAME'], app.config['CLOUDINARY_API_KEY'], app.config['CLOUDINARY_API_SECRET']]):
         cloudinary.config(
             cloud_name=app.config['CLOUDINARY_CLOUD_NAME'],
