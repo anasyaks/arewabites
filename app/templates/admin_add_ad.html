@@ -13,8 +13,8 @@
                     <form method="POST" action="{{ url_for('main.add_ad') }}" enctype="multipart/form-data" class="space-y-4">
                         {{ form.hidden_tag() }}
                         <fieldset class="form-group">
-                            <div class="form-group">
-                                {{ form.title.label(class="form-control-label") }}
+                            <div class="mb-3">
+                                {{ form.title.label(class="form-label") }}
                                 {{ form.title(class="form-control form-control-lg") }}
                                 {% if form.title.errors %}
                                     {% for error in form.title.errors %}
@@ -22,8 +22,8 @@
                                     {% endfor %}
                                 {% endif %}
                             </div>
-                            <div class="form-group">
-                                {{ form.content.label(class="form-control-label") }}
+                            <div class="mb-3">
+                                {{ form.content.label(class="form-label") }}
                                 {{ form.content(class="form-control form-control-lg", rows="5") }}
                                 {% if form.content.errors %}
                                     {% for error in form.content.errors %}
@@ -31,8 +31,8 @@
                                     {% endfor %}
                                 {% endif %}
                             </div>
-                            <div class="form-group">
-                                {{ form.link_url.label(class="form-control-label") }}
+                            <div class="mb-3">
+                                {{ form.link_url.label(class="form-label") }}
                                 {{ form.link_url(class="form-control form-control-lg") }}
                                 {% if form.link_url.errors %}
                                     {% for error in form.link_url.errors %}
@@ -40,22 +40,22 @@
                                     {% endfor %}
                                 {% endif %}
                             </div>
-                            <div class="form-group">
-                                {{ form.media_file.label(class="form-control-label") }}
-                                {{ form.media_file(class="form-control-file") }}
+                            <div class="mb-3">
+                                {{ form.media_file.label(class="form-label") }}
+                                {{ form.media_file(class="form-control") }}
                                 {% if form.media_file.errors %}
                                     {% for error in form.media_file.errors %}
                                         <div class="alert alert-danger">{{ error }}</div>
                                     {% endfor %}
                                 {% endif %}
                             </div>
-                            <div class="form-check">
+                            <div class="form-check mb-3">
                                 {{ form.is_active(class="form-check-input") }}
                                 {{ form.is_active.label(class="form-check-label") }}
                             </div>
                         </fieldset>
                         <div class="form-group mt-4 text-center">
-                            {{ form.submit(class="btn btn-arewa-primary btn-lg") }}
+                            {{ form.submit(class="btn btn-arewa-primary btn-lg w-100") }}
                         </div>
                     </form>
                 </div>
