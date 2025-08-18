@@ -4,9 +4,6 @@ from app import db, bcrypt
 from flask_login import UserMixin
 import os
 import secrets
-import cloudinary.uploader
-import cloudinary
-from flask import current_app
 
 class Vendor(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,7 +14,6 @@ class Vendor(db.Model, UserMixin):
     state = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    # The unused `image_url` has been removed.
     logo_url = db.Column(db.String(200), nullable=False, default='logos/default.png')
     is_admin = db.Column(db.Boolean, default=False)
     is_verified = db.Column(db.Boolean, default=False)
@@ -37,13 +33,10 @@ class Vendor(db.Model, UserMixin):
     
     @staticmethod
     def create_admin():
-        """Creates or updates a default admin user."""
+        """Creates a default admin user if one does not exist."""
         with db.session.no_autoflush:
             admin_vendor = Vendor.query.filter_by(email='admin@arewabites.com').first()
             if not admin_vendor:
-                # The logo needs to be pre-uploaded to Cloudinary. This URL is hardcoded here for the initial setup.
-                # You must replace this with your actual logo's public URL from Cloudinary.
-                default_logo_url = 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1755532346/default.png.png'
                 hashed_password = bcrypt.generate_password_hash('adminpass').decode('utf-8')
                 admin = Vendor(
                     business_name='Arewa Bites Admin',
@@ -55,16 +48,13 @@ class Vendor(db.Model, UserMixin):
                     password=hashed_password,
                     is_admin=True,
                     is_verified=True,
-                    logo_url=default_logo_url
+                    logo_url='logos/admin_logo.png'
                 )
                 db.session.add(admin)
+                db.session.commit()
                 print("Default admin user created successfully.")
             else:
-                # Ensure the admin's password is correct if the user already exists
-                admin_vendor.password = bcrypt.generate_password_hash('adminpass').decode('utf-8')
-                admin_vendor.is_admin = True
-                print("Admin user already exists. Password has been reset.")
-            db.session.commit()
+                print("Admin user already exists.")
 
 class Snack(db.Model):
     id = db.Column(db.Integer, primary_key=True)
