@@ -8,7 +8,6 @@ from flask_migrate import Migrate
 from datetime import datetime
 from app.config import Config
 from flask_socketio import SocketIO
-import cloudinary
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -17,13 +16,6 @@ login_manager = LoginManager()
 csrf = CSRFProtect()
 migrate = Migrate()
 socketio = SocketIO()
-
-# Cloudinary Configuration
-cloudinary.config(
-    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    api_key=os.environ.get('CLOUDINARY_API_KEY'),
-    api_secret=os.environ.get('CLOUDINARY_API_SECRET')
-)
 
 def create_app(config_class=Config):
     app = Flask(__name__)

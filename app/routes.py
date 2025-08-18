@@ -6,8 +6,6 @@ from functools import wraps
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, func
-import cloudinary.uploader
-import cloudinary.exceptions
 
 from app import db, bcrypt, login_manager
 from app.models import Vendor, Snack, Review, Ad
@@ -16,17 +14,19 @@ from app.forms import RegistrationForm, LoginForm, AddSnackForm, SearchForm, Ven
 # Create a Blueprint named 'main'
 main = Blueprint('main', __name__)
 
-# --- CORRECTED FUNCTION TO UPLOAD TO CLOUDINARY ---
-def upload_to_cloudinary(file, folder):
-    try:
-        # The Cloudinary configuration is now set globally in __init__.py
-        # So, we just need to call the upload method with the file and folder.
-        upload_result = cloudinary.uploader.upload(file, folder=folder)
-        return upload_result['secure_url']
-    except cloudinary.exceptions.Error as e:
-        print(f"Cloudinary upload error: {e}")
-        return None
-# ----------------------------------------------------
+# --- Reverted FUNCTION TO UPLOAD TO LOCAL FILE SYSTEM ---
+def save_uploaded_file(file, folder):
+    if file:
+        random_hex = secrets.token_hex(8)
+        _, f_ext = os.path.splitext(file.filename)
+        file_name = random_hex + f_ext
+        upload_path = os.path.join(current_app.root_path, 'static', folder, file_name)
+        if not os.path.exists(os.path.dirname(upload_path)):
+            os.makedirs(os.path.dirname(upload_path))
+        file.save(upload_path)
+        return os.path.join(folder, file_name).replace('\\', '/')
+    return None
+# ---------------------------------------------
 
 # User loader function for Flask-Login
 @login_manager.user_loader
@@ -106,8 +106,8 @@ def register_vendor():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         
-        default_logo_url = 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1723991206/logos/default.png'
-        logo_url = upload_to_cloudinary(form.logo_file.data, 'logos') if form.logo_file.data else default_logo_url
+        # New upload logic
+        logo_url = save_uploaded_file(form.logo_file.data, 'logos') if form.logo_file.data else 'logos/default.png'
 
         referrer_vendor = None
         if form.referral_code.data:
@@ -230,6 +230,7 @@ def search_vendors():
 
     return render_template('vendor_search_results.html', search_form=search_form, results=results)
 
+
 @main.route("/dashboard")
 @vendor_only
 def vendor_dashboard():
@@ -257,7 +258,7 @@ def add_snack():
         media_url = None
         media_type = 'image'
         if form.media_file.data:
-            media_url = upload_to_cloudinary(form.media_file.data, 'snack_media')
+            media_url = save_uploaded_file(form.media_file.data, 'snack_media')
             if media_url and (media_url.lower().endswith('.mp4') or media_url.lower().endswith('.mov')):
                 media_type = 'video'
             
@@ -375,7 +376,7 @@ def admin_edit_profile():
     if form.validate_on_submit():
         # New upload logic
         if form.logo_file.data:
-            logo_url = upload_to_cloudinary(form.logo_file.data, 'logos')
+            logo_url = save_uploaded_file(form.logo_file.data, 'logos')
             admin.logo_url = logo_url
         
         form.populate_obj(admin)
@@ -396,7 +397,7 @@ def edit_profile():
     if form.validate_on_submit():
         # New upload logic
         if form.logo_file.data:
-            logo_url = upload_to_cloudinary(form.logo_file.data, 'logos')
+            logo_url = save_uploaded_file(form.logo_file.data, 'logos')
             vendor.logo_url = logo_url
         
         form.populate_obj(vendor)
@@ -417,7 +418,8 @@ def add_ad():
         media_url = None
         media_type = 'image'
         if form.media_file.data:
-            media_url = upload_to_cloudinary(form.media_file.data, 'ads')
+            media_url = save_uploaded_file(form.media_file.data, 'ads')
+            # Assuming file extension check for media type
             if media_url and (media_url.lower().endswith('.mp4')):
                 media_type = 'video'
             else:
@@ -448,7 +450,7 @@ def edit_ad(ad_id):
     form = AdForm(obj=ad)
     if form.validate_on_submit():
         if form.media_file.data:
-            media_url = upload_to_cloudinary(form.media_file.data, 'ads')
+            media_url = save_uploaded_file(form.media_file.data, 'ads')
             ad.media_url = media_url
             if media_url and (media_url.lower().endswith('.mp4')):
                 media_type = 'video'
