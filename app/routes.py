@@ -16,15 +16,17 @@ from app.forms import RegistrationForm, LoginForm, AddSnackForm, SearchForm, Ven
 # Create a Blueprint named 'main'
 main = Blueprint('main', __name__)
 
-# --- NEW FUNCTION TO UPLOAD TO CLOUDINARY ---
+# --- CORRECTED FUNCTION TO UPLOAD TO CLOUDINARY ---
 def upload_to_cloudinary(file, folder):
     try:
+        # The Cloudinary configuration is now set globally in __init__.py
+        # So, we just need to call the upload method with the file and folder.
         upload_result = cloudinary.uploader.upload(file, folder=folder)
         return upload_result['secure_url']
     except cloudinary.exceptions.Error as e:
         print(f"Cloudinary upload error: {e}")
         return None
-# ---------------------------------------------
+# ----------------------------------------------------
 
 # User loader function for Flask-Login
 @login_manager.user_loader
@@ -104,9 +106,6 @@ def register_vendor():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         
-        # New upload logic
-        # You must replace this with a URL to a default image you've uploaded to Cloudinary.
-        # Example: 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1234567890/logos/default_logo.png'
         default_logo_url = 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1723991206/logos/default.png'
         logo_url = upload_to_cloudinary(form.logo_file.data, 'logos') if form.logo_file.data else default_logo_url
 
@@ -202,7 +201,7 @@ def review_snack(snack_id):
         db.session.add(review)
         db.session.commit()
         flash('Thank you for your review!', 'success')
-        return redirect(url_for('main.vendor_profile', vendor_id=snack.vendor_id))
+        return redirect(url_for('main.vendor_profile', vendor_id=snack.vendor.id))
         
     return render_template('review_snack.html', form=form, snack=snack)
 
@@ -230,7 +229,6 @@ def search_vendors():
     results = query.order_by(Vendor.business_name).all()
 
     return render_template('vendor_search_results.html', search_form=search_form, results=results)
-
 
 @main.route("/dashboard")
 @vendor_only
@@ -420,7 +418,6 @@ def add_ad():
         media_type = 'image'
         if form.media_file.data:
             media_url = upload_to_cloudinary(form.media_file.data, 'ads')
-            # Assuming file extension check for media type
             if media_url and (media_url.lower().endswith('.mp4')):
                 media_type = 'video'
             else:

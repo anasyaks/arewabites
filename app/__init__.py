@@ -18,8 +18,12 @@ csrf = CSRFProtect()
 migrate = Migrate()
 socketio = SocketIO()
 
-# Cloudinary configuration will be set inside the app factory
-# after app.config is loaded.
+# Cloudinary Configuration
+cloudinary.config(
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET')
+)
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -31,18 +35,7 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app)
-
-    # Cloudinary configuration is now set after the app object is created
-    # and has its configuration loaded.
-    if all([app.config.get('CLOUDINARY_CLOUD_NAME'), app.config.get('CLOUDINARY_API_KEY'), app.config.get('CLOUDINARY_API_SECRET')]):
-        cloudinary.config(
-            cloud_name=app.config.get('CLOUDINARY_CLOUD_NAME'),
-            api_key=app.config.get('CLOUDINARY_API_KEY'),
-            api_secret=app.config.get('CLOUDINARY_API_SECRET')
-        )
-    else:
-        print("Cloudinary credentials are not set. File uploads will likely fail.")
-
+    
     @app.context_processor
     def inject_globals():
         current_vendor = None
