@@ -6,8 +6,8 @@ from functools import wraps
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, func
-import cloudinary.uploader # Import only uploader, as config is handled in __init__.py
-import cloudinary.exceptions # Import exceptions for error handling
+import cloudinary.uploader
+import cloudinary.exceptions
 
 from app import db, bcrypt, login_manager
 from app.models import Vendor, Snack, Review, Ad
@@ -16,17 +16,15 @@ from app.forms import RegistrationForm, LoginForm, AddSnackForm, SearchForm, Ven
 # Create a Blueprint named 'main'
 main = Blueprint('main', __name__)
 
-# --- CORRECTED FUNCTION TO UPLOAD TO CLOUDINARY ---
+# --- NEW FUNCTION TO UPLOAD TO CLOUDINARY ---
 def upload_to_cloudinary(file, folder):
     try:
-        # The Cloudinary configuration is already set globally in __init__.py
-        # So, we just need to call the upload method with the file and folder.
         upload_result = cloudinary.uploader.upload(file, folder=folder)
         return upload_result['secure_url']
     except cloudinary.exceptions.Error as e:
         print(f"Cloudinary upload error: {e}")
         return None
-# ----------------------------------------------------
+# ---------------------------------------------
 
 # User loader function for Flask-Login
 @login_manager.user_loader
@@ -109,7 +107,7 @@ def register_vendor():
         # New upload logic
         # You must replace this with a URL to a default image you've uploaded to Cloudinary.
         # Example: 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1234567890/logos/default_logo.png'
-        default_logo_url = 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1723991206/logos/default.png' 
+        default_logo_url = 'https://res.cloudinary.com/dlwkdmh7b/image/upload/v1723991206/logos/default.png'
         logo_url = upload_to_cloudinary(form.logo_file.data, 'logos') if form.logo_file.data else default_logo_url
 
         referrer_vendor = None
@@ -458,7 +456,7 @@ def edit_ad(ad_id):
             if media_url and (media_url.lower().endswith('.mp4')):
                 media_type = 'video'
             else:
-                media_type = 'image'
+                ad.media_type = 'image'
         
         form.populate_obj(ad)
         db.session.commit()
@@ -489,4 +487,4 @@ def toggle_ad_status(ad_id):
         flash('Ad status updated successfully!', 'success')
     else:
         flash('Ad not found.', 'danger')
-    return redirect(url_for('main.admin_dashboard'))'
+    return redirect(url_for('main.admin_dashboard'))
