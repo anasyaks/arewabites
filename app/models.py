@@ -1,9 +1,8 @@
-# app/models.py
-from datetime import datetime
-from app import db, bcrypt
-from flask_login import UserMixin
 import os
 import secrets
+from flask_login import UserMixin
+from datetime import datetime
+from app import db, bcrypt
 
 class Vendor(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,11 +32,14 @@ class Vendor(db.Model, UserMixin):
     
     @staticmethod
     def create_admin():
-        """Creates a default admin user if one does not exist."""
+        """Creates or updates a default admin user."""
         with db.session.no_autoflush:
             admin_vendor = Vendor.query.filter_by(email='admin@arewabites.com').first()
+            
+            admin_logo_url = 'logos/admin_logo.png'
+            
+            hashed_password = bcrypt.generate_password_hash('adminpass').decode('utf-8')
             if not admin_vendor:
-                hashed_password = bcrypt.generate_password_hash('adminpass').decode('utf-8')
                 admin = Vendor(
                     business_name='Arewa Bites Admin',
                     contact_name='Admin User',
@@ -48,13 +50,16 @@ class Vendor(db.Model, UserMixin):
                     password=hashed_password,
                     is_admin=True,
                     is_verified=True,
-                    logo_url='logos/admin_logo.png'
+                    logo_url=admin_logo_url
                 )
                 db.session.add(admin)
-                db.session.commit()
                 print("Default admin user created successfully.")
             else:
-                print("Admin user already exists.")
+                admin_vendor.password = hashed_password
+                admin_vendor.is_admin = True
+                admin_vendor.logo_url = admin_logo_url
+                print("Admin user already exists. Logo and password have been reset.")
+            db.session.commit()
 
 class Snack(db.Model):
     id = db.Column(db.Integer, primary_key=True)

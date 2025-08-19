@@ -6,7 +6,7 @@
         <div class="col-md-6">
             <div class="card p-4 shadow-sm arewa-card">
                 <h1 class="text-center arewa-text-green mb-4 fw-bold">Edit Snack: {{ snack.name }}</h1>
-                <form method="POST" action="{{ url_for('main.admin_edit_snack', snack_id=snack.id) }}" novalidate>
+                <form method="POST" action="{{ url_for('main.edit_snack', snack_id=snack.id) }}" novalidate>
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
                         {{ form.name.label(class="form-label") }}
@@ -35,9 +35,8 @@
                             </div>
                         {% endif %}
                     </div>
-                    <div class="d-grid gap-2">
-                        {{ form.submit(class="btn btn-arewa-primary w-100 mt-4 rounded-pill") }}
-                        <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary w-100 rounded-pill mt-3">Cancel</a>
+                    <div class="mt-4 text-center">
+                        {{ form.submit(class="btn btn-arewa-primary w-100 rounded-pill") }}
                     </div>
                 </form>
             </div>

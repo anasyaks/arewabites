@@ -11,7 +11,7 @@
                         {{ form.hidden_tag() }}
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="{{ form.business_name.id }}" class="form-label">{{ form.business_name.label.text }}</label>
+                                {{ form.business_name.label(class="form-label") }}
                                 {{ form.business_name(class="form-control") }}
                                 {% if form.business_name.errors %}
                                     <div class="invalid-feedback d-block">
@@ -20,7 +20,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.contact_name.id }}" class="form-label">{{ form.contact_name.label.text }}</label>
+                                {{ form.contact_name.label(class="form-label") }}
                                 {{ form.contact_name(class="form-control") }}
                                 {% if form.contact_name.errors %}
                                     <div class="invalid-feedback d-block">
@@ -29,7 +29,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.whatsapp_number.id }}" class="form-label">{{ form.whatsapp_number.label.text }}</label>
+                                {{ form.whatsapp_number.label(class="form-label") }}
                                 {{ form.whatsapp_number(class="form-control") }}
                                 {% if form.whatsapp_number.errors %}
                                     <div class="invalid-feedback d-block">
@@ -38,7 +38,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.email.id }}" class="form-label">{{ form.email.label.text }}</label>
+                                {{ form.email.label(class="form-label") }}
                                 {{ form.email(class="form-control") }}
                                 {% if form.email.errors %}
                                     <div class="invalid-feedback d-block">
@@ -47,7 +47,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.location_zone.id }}" class="form-label">{{ form.location_zone.label.text }}</label>
+                                {{ form.location_zone.label(class="form-label") }}
                                 {{ form.location_zone(class="form-control") }}
                                 {% if form.location_zone.errors %}
                                     <div class="invalid-feedback d-block">
@@ -56,7 +56,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.state.id }}" class="form-label">{{ form.state.label.text }}</label>
+                                {{ form.state.label(class="form-label") }}
                                 {{ form.state(class="form-control") }}
                                 {% if form.state.errors %}
                                     <div class="invalid-feedback d-block">
@@ -65,7 +65,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.password.id }}" class="form-label">{{ form.password.label.text }}</label>
+                                {{ form.password.label(class="form-label") }}
                                 {{ form.password(class="form-control") }}
                                 {% if form.password.errors %}
                                     <div class="invalid-feedback d-block">
@@ -74,7 +74,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.confirm_password.id }}" class="form-label">{{ form.confirm_password.label.text }}</label>
+                                {{ form.confirm_password.label(class="form-label") }}
                                 {{ form.confirm_password(class="form-control") }}
                                 {% if form.confirm_password.errors %}
                                     <div class="invalid-feedback d-block">
@@ -83,16 +83,19 @@
                                 {% endif %}
                             </div>
                             <div class="col-12">
-                                <label for="{{ form.logo_file.id }}" class="form-label">{{ form.logo_file.label.text }}</label>
-                                {{ form.logo_file(class="form-control") }}
+                                {{ form.logo_file.label(class="form-label") }}
+                                {{ form.logo_file(class="form-control", id="logo_file") }}
                                 {% if form.logo_file.errors %}
                                     <div class="invalid-feedback d-block">
                                         {% for error in form.logo_file.errors %}<span>{{ error }}</span>{% endfor %}
                                     </div>
                                 {% endif %}
+                                <div id="logo-preview-container" class="mt-3 text-center" style="display:none;">
+                                    <img id="logo-preview-image" src="#" alt="Logo Preview" class="img-fluid rounded-circle" style="max-height:100px; border: 1px solid #ddd;">
+                                </div>
                             </div>
                             <div class="col-12">
-                                <label for="{{ form.referral_code.id }}" class="form-label">{{ form.referral_code.label.text }}</label>
+                                {{ form.referral_code.label(class="form-label") }}
                                 {{ form.referral_code(class="form-control") }}
                                 {% if form.referral_code.errors %}
                                     <div class="invalid-feedback d-block">
@@ -101,7 +104,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-arewa-primary w-100 mt-4">{{ form.submit.label.text }}</button>
+                        <button type="submit" class="btn btn-arewa-primary w-100 mt-4 rounded-pill">Register</button>
                     </form>
                     <p class="text-center mt-3">Already have an account? <a href="{{ url_for('main.login') }}" class="arewa-text-green text-decoration-none fw-bold">Log in here</a></p>
                 </div>
@@ -109,4 +112,18 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('logo_file').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        var previewContainer = document.getElementById('logo-preview-container');
+        var previewImage = document.getElementById('logo-preview-image');
+
+        reader.onload = function(e) {
+            previewContainer.style.display = 'block';
+            previewImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
 {% endblock %}

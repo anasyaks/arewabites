@@ -4,7 +4,7 @@
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card p-4 shadow-lg arewa-card">
+            <div class="card p-4 shadow-sm arewa-card">
                 <h1 class="text-center arewa-text-green mb-4 fw-bold">Add a New Snack</h1>
                 <form method="POST" action="{{ url_for('main.add_snack') }}" enctype="multipart/form-data" novalidate>
                     {{ form.hidden_tag() }}
@@ -37,17 +37,44 @@
                     </div>
                     <div class="mb-3">
                         {{ form.media_file.label(class="form-label") }}
-                        {{ form.media_file(class="form-control") }}
+                        {{ form.media_file(class="form-control", id="media_file") }}
                         {% if form.media_file.errors %}
                             <div class="invalid-feedback d-block">
                                 {% for error in form.media_file.errors %}<span>{{ error }}</span>{% endfor %}
                             </div>
                         {% endif %}
+                        <div id="media-preview-container" class="mt-3 text-center" style="display:none;">
+                            <img id="media-preview-image" src="#" alt="Media Preview" class="img-fluid rounded" style="max-height:200px; border: 1px solid #ddd;">
+                            <video id="media-preview-video" src="#" class="img-fluid rounded" style="max-height:200px; border: 1px solid #ddd;" controls></video>
+                        </div>
                     </div>
-                    {{ form.submit(class="btn btn-arewa-primary w-100 mt-4") }}
+                    {{ form.submit(class="btn btn-arewa-primary w-100 mt-4 rounded-pill") }}
                 </form>
             </div>
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('media_file').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        var previewContainer = document.getElementById('media-preview-container');
+        var previewImage = document.getElementById('media-preview-image');
+        var previewVideo = document.getElementById('media-preview-video');
+
+        reader.onload = function(e) {
+            previewContainer.style.display = 'block';
+            if (file.type.startsWith('video')) {
+                previewImage.style.display = 'none';
+                previewVideo.style.display = 'block';
+                previewVideo.src = e.target.result;
+            } else {
+                previewImage.style.display = 'block';
+                previewVideo.style.display = 'none';
+                previewImage.src = e.target.result;
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
 {% endblock %}

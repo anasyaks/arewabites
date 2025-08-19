@@ -106,7 +106,6 @@ def register_vendor():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         
-        # New upload logic
         logo_url = save_uploaded_file(form.logo_file.data, 'logos') if form.logo_file.data else 'logos/default.png'
 
         referrer_vendor = None
@@ -286,11 +285,31 @@ def delete_snack(snack_id):
         flash('You do not have permission to delete this snack.', 'danger')
         return redirect(url_for('main.vendor_dashboard'))
     
-    # New delete logic: No need to delete from local file system anymore
     db.session.delete(snack)
     db.session.commit()
     flash('Snack deleted successfully.', 'success')
     return redirect(url_for('main.vendor_dashboard'))
+
+@main.route("/edit_snack/<int:snack_id>", methods=['GET', 'POST'])
+@vendor_only
+def edit_snack(snack_id):
+    snack = db.session.get(Snack, snack_id)
+    if not snack:
+        flash('Snack not found.', 'danger')
+        return redirect(url_for('main.vendor_dashboard'))
+
+    if snack.vendor_id != session.get('vendor_id'):
+        flash('You do not have permission to edit this snack.', 'danger')
+        return redirect(url_for('main.vendor_dashboard'))
+
+    form = SnackEditForm(obj=snack)
+    if form.validate_on_submit():
+        form.populate_obj(snack)
+        db.session.commit()
+        flash('Snack details updated successfully!', 'success')
+        return redirect(url_for('main.vendor_dashboard'))
+
+    return render_template('edit_snack.html', form=form, snack=snack)
 
 @main.route("/admin")
 @admin_only
@@ -374,7 +393,6 @@ def admin_edit_profile():
     admin = db.session.get(Vendor, session.get('vendor_id'))
     form = UpdateProfileForm(obj=admin)
     if form.validate_on_submit():
-        # New upload logic
         if form.logo_file.data:
             logo_url = save_uploaded_file(form.logo_file.data, 'logos')
             admin.logo_url = logo_url
@@ -395,7 +413,6 @@ def edit_profile():
         
     form = UpdateProfileForm(obj=vendor)
     if form.validate_on_submit():
-        # New upload logic
         if form.logo_file.data:
             logo_url = save_uploaded_file(form.logo_file.data, 'logos')
             vendor.logo_url = logo_url
@@ -419,7 +436,6 @@ def add_ad():
         media_type = 'image'
         if form.media_file.data:
             media_url = save_uploaded_file(form.media_file.data, 'ads')
-            # Assuming file extension check for media type
             if media_url and (media_url.lower().endswith('.mp4')):
                 media_type = 'video'
             else:
