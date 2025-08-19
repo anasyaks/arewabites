@@ -311,13 +311,41 @@ def edit_snack(snack_id):
 
     return render_template('edit_snack.html', form=form, snack=snack)
 
-@main.route("/admin")
+@main.route("/admin", methods=['GET'])
 @admin_only
 def admin_dashboard():
-    vendors = Vendor.query.order_by(Vendor.business_name).all()
-    all_snacks = Snack.query.order_by(Snack.date_posted.desc()).all()
-    all_ads = Ad.query.order_by(Ad.date_posted.desc()).all()
-    return render_template('admin_dashboard.html', vendors=vendors, all_snacks=all_snacks, all_ads=all_ads)
+    # Handle search for vendors
+    vendor_search_term = request.args.get('vendor_search_term', '')
+    if vendor_search_term:
+        vendors = Vendor.query.filter(or_(
+            Vendor.business_name.ilike(f'%{vendor_search_term}%'),
+            Vendor.email.ilike(f'%{vendor_search_term}%')
+        )).order_by(Vendor.business_name).all()
+    else:
+        vendors = Vendor.query.order_by(Vendor.business_name).all()
+
+    # Handle search for snacks
+    snack_search_term = request.args.get('snack_search_term', '')
+    if snack_search_term:
+        all_snacks = Snack.query.filter(Snack.name.ilike(f'%{snack_search_term}%')).order_by(Snack.date_posted.desc()).all()
+    else:
+        all_snacks = Snack.query.order_by(Snack.date_posted.desc()).all()
+
+    # Handle search for ads
+    ad_search_term = request.args.get('ad_search_term', '')
+    if ad_search_term:
+        all_ads = Ad.query.filter(Ad.title.ilike(f'%{ad_search_term}%')).order_by(Ad.date_posted.desc()).all()
+    else:
+        all_ads = Ad.query.order_by(Ad.date_posted.desc()).all()
+
+    # Determine which tab to show after search
+    active_tab = request.args.get('tab', 'vendors')
+    
+    return render_template('admin_dashboard.html', 
+                           vendors=vendors, 
+                           all_snacks=all_snacks, 
+                           all_ads=all_ads,
+                           active_tab=active_tab)
 
 @main.route("/verify_vendor/<int:vendor_id>", methods=['POST'])
 @admin_only

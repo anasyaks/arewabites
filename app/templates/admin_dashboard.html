@@ -8,17 +8,17 @@
             
             <ul class="nav nav-tabs nav-justified mb-4" id="adminTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="vendors-tab" data-bs-toggle="tab" href="#vendors" role="tab" aria-controls="vendors" aria-selected="true">
+                    <a class="nav-link {% if active_tab == 'vendors' %}active{% endif %}" id="vendors-tab" data-bs-toggle="tab" href="#vendors" role="tab" aria-controls="vendors" aria-selected="{% if active_tab == 'vendors' %}true{% else %}false{% endif %}">
                         <i class="fas fa-users-cog me-2"></i>Vendors
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="snacks-tab" data-bs-toggle="tab" href="#snacks" role="tab" aria-controls="snacks" aria-selected="false">
+                    <a class="nav-link {% if active_tab == 'snacks' %}active{% endif %}" id="snacks-tab" data-bs-toggle="tab" href="#snacks" role="tab" aria-controls="snacks" aria-selected="{% if active_tab == 'snacks' %}true{% else %}false{% endif %}">
                         <i class="fas fa-cookie-bite me-2"></i>Snacks
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="ads-tab" data-bs-toggle="tab" href="#ads" role="tab" aria-controls="ads" aria-selected="false">
+                    <a class="nav-link {% if active_tab == 'ads' %}active{% endif %}" id="ads-tab" data-bs-toggle="tab" href="#ads" role="tab" aria-controls="ads" aria-selected="{% if active_tab == 'ads' %}true{% else %}false{% endif %}">
                         <i class="fas fa-bullhorn me-2"></i>Ads
                     </a>
                 </li>
@@ -26,8 +26,17 @@
 
             <div class="tab-content" id="adminTabsContent">
                 
-                <div class="tab-pane fade show active" id="vendors" role="tabpanel" aria-labelledby="vendors-tab">
+                <div class="tab-pane fade {% if active_tab == 'vendors' %}show active{% endif %}" id="vendors" role="tabpanel" aria-labelledby="vendors-tab">
                     <h2 class="mb-3">Manage Vendors</h2>
+                    <div class="arewa-card p-3 shadow-sm mb-4">
+                        <form method="GET" action="{{ url_for('main.admin_dashboard') }}">
+                            <div class="d-flex gap-2">
+                                <input type="hidden" name="tab" value="vendors">
+                                <input type="text" name="vendor_search_term" class="form-control" placeholder="Search by business name or email..." value="{{ request.args.get('vendor_search_term', '') }}">
+                                <button type="submit" class="btn btn-arewa-primary">Search</button>
+                            </div>
+                        </form>
+                    </div>
                     <div class="table-responsive arewa-card p-3 shadow-sm">
                         <table class="table table-dark table-striped table-hover rounded-3 overflow-hidden">
                             <thead>
@@ -86,8 +95,17 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="snacks" role="tabpanel" aria-labelledby="snacks-tab">
+                <div class="tab-pane fade {% if active_tab == 'snacks' %}show active{% endif %}" id="snacks" role="tabpanel" aria-labelledby="snacks-tab">
                     <h2 class="mb-3">Manage Snacks</h2>
+                    <div class="arewa-card p-3 shadow-sm mb-4">
+                        <form method="GET" action="{{ url_for('main.admin_dashboard') }}">
+                            <div class="d-flex gap-2">
+                                <input type="hidden" name="tab" value="snacks">
+                                <input type="text" name="snack_search_term" class="form-control" placeholder="Search by snack name..." value="{{ request.args.get('snack_search_term', '') }}">
+                                <button type="submit" class="btn btn-arewa-primary">Search</button>
+                            </div>
+                        </form>
+                    </div>
                     <div class="table-responsive arewa-card p-3 shadow-sm">
                         <table class="table table-dark table-striped table-hover rounded-3 overflow-hidden">
                             <thead>
@@ -122,10 +140,19 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="ads" role="tabpanel" aria-labelledby="ads-tab">
+                <div class="tab-pane fade {% if active_tab == 'ads' %}show active{% endif %}" id="ads" role="tabpanel" aria-labelledby="ads-tab">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Manage Ads</h2>
                         <a href="{{ url_for('main.add_ad') }}" class="btn btn-arewa-primary rounded-pill">Add New Ad</a>
+                    </div>
+                    <div class="arewa-card p-3 shadow-sm mb-4">
+                        <form method="GET" action="{{ url_for('main.admin_dashboard') }}">
+                            <div class="d-flex gap-2">
+                                <input type="hidden" name="tab" value="ads">
+                                <input type="text" name="ad_search_term" class="form-control" placeholder="Search by ad title..." value="{{ request.args.get('ad_search_term', '') }}">
+                                <button type="submit" class="btn btn-arewa-primary">Search</button>
+                            </div>
+                        </form>
                     </div>
                     <div class="table-responsive arewa-card p-3 shadow-sm">
                         <table class="table table-dark table-striped table-hover rounded-3 overflow-hidden">
